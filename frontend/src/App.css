@@ -355,6 +355,12 @@ body {
   flex: 1;
 }
 
+.product-card-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .product-categoria {
   display: inline-block;
   padding: 2px 8px;
@@ -386,6 +392,7 @@ body {
   color: #D97706;
   margin-bottom: 14px;
   letter-spacing: -0.3px;
+  margin-top: auto;
 }
 
 .product-card-acoes {

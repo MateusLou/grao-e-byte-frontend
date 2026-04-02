@@ -213,7 +213,7 @@ function Vendas() {
                       'Pedido cancelado!';
         showToast(label, novoStatus === 'cancelado' ? 'warning' : 'success');
         await carregarVendas();
-        if (novoStatus === 'cancelado') await carregarProdutos();
+        await carregarProdutos();
         if (novoStatus === 'finalizado') setAbaAtiva('historico');
       } else {
         const data = await res.json();

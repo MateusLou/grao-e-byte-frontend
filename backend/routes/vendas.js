@@ -61,6 +61,7 @@ router.post('/', auth, async (req, res) => {
       await Movimentacao.create({
         produtoId: item.produtoId,
         tipo: 'saida',
+        origem: 'venda',
         quantidade: item.quantidade,
         userId: req.userId
       });
@@ -130,6 +131,7 @@ router.patch('/:id/status', auth, async (req, res) => {
         await Movimentacao.create({
           produtoId: item.produtoId,
           tipo: 'entrada',
+          origem: 'cancelamento',
           quantidade: item.quantidade,
           userId: req.userId
         });

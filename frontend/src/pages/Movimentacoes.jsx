@@ -488,7 +488,9 @@ function Movimentacoes() {
                       </td>
                       <td>
                         <span className={`tabela-tipo tabela-tipo-${mov.tipo}`}>
-                          {mov.tipo === 'entrada' ? '+ Entrada' : '- Saída'}
+                          {mov.tipo === 'entrada'
+                            ? (mov.origem === 'cancelamento' ? '+ Entrada (Cancelamento)' : '+ Entrada')
+                            : (mov.origem === 'venda' ? '- Saída (Venda)' : '- Saída (Manual)')}
                         </span>
                       </td>
                       <td className="tabela-qtd">{mov.quantidade}</td>

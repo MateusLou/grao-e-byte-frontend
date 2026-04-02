@@ -10,7 +10,7 @@ function sanitizeCSVField(value) {
 }
 
 export function exportCSV(produtos) {
-  const ativos = produtos.filter((p) => p.ativo !== false);
+  const ativos = produtos.filter((p) => p.ativo !== false && (p.estoque ?? 0) > 0);
 
   // Agrupar por categoria
   const porCategoria = {};
@@ -46,7 +46,7 @@ export function exportCSV(produtos) {
 }
 
 export function exportPDF(produtos) {
-  const ativos = produtos.filter((p) => p.ativo !== false);
+  const ativos = produtos.filter((p) => p.ativo !== false && (p.estoque ?? 0) > 0);
 
   // Agrupar por categoria
   const porCategoria = {};

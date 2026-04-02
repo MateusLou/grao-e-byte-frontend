@@ -328,7 +328,7 @@ function Products() {
         </div>
         {isGerente && produtos.length > 0 && (
           <div className="export-btn-group">
-            <button className="btn-export" onClick={() => exportCSV(produtos)}>
+            <button className="btn-export" onClick={async () => { const res = await fetch('/api/products', { headers: { Authorization: `Bearer ${token}` } }); if (res.ok) { const data = await res.json(); setProdutos(data); exportCSV(data); } }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="7 10 12 15 17 10" />
@@ -336,7 +336,7 @@ function Products() {
               </svg>
               CSV
             </button>
-            <button className="btn-export" onClick={() => exportPDF(produtos)}>
+            <button className="btn-export" onClick={async () => { const res = await fetch('/api/products', { headers: { Authorization: `Bearer ${token}` } }); if (res.ok) { const data = await res.json(); setProdutos(data); exportPDF(data); } }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <polyline points="14 2 14 8 20 8" />

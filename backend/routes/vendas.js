@@ -24,7 +24,22 @@ router.post('/', auth, async (req, res) => {
         return res.status(404).json({ erro: `Produto ${item.produtoId} nao encontrado` });
       }
       const qty = item.quantidade || 1;
-      const subtotal = produto.preco * qty;
+
+      // Validar estoque antes de permitir venda
+      const entradas = await Movimentacao.aggregate([
+        { $match: { produtoId: produto._id, tipo: 'entrada' } },
+        { $group: { _id: null, total: { $sum: '$quantidade' } } }
+      ]);
+      const saidas = await Movimentacao.aggregate([
+        { $match: { produtoId: produto._id, tipo: 'saida' } },
+        { $group: { _id: null, total: { $sum: '$quantidade' } } }
+      ]);
+      const estoqueAtual = (entradas[0]?.total || 0) - (saidas[0]?.total || 0);
+      if (qty > estoqueAtual) {
+        return res.status(400).json({ erro: `Estoque insuficiente para "${produto.nome}". Disponivel: ${estoqueAtual}` });
+      }
+
+      const subtotal = Math.round(produto.preco * qty * 100) / 100;
       itensVenda.push({
         produtoId: produto._id,
         nome: produto.nome,
@@ -134,6 +149,26 @@ router.patch('/:id/status', auth, async (req, res) => {
       venda.finalizadoEm = new Date();
     }
     await venda.save();
+
+    if (status === 'pronto') {
+      registrarLog({
+        acao: 'venda',
+        entidade: 'venda',
+        entidadeId: venda._id,
+        entidadeNome: `Venda #${venda._id.toString().slice(-6)}`,
+        userId: req.userId,
+        detalhes: 'Pedido marcado como pronto'
+      });
+    } else if (status === 'finalizado') {
+      registrarLog({
+        acao: 'venda',
+        entidade: 'venda',
+        entidadeId: venda._id,
+        entidadeNome: `Venda #${venda._id.toString().slice(-6)}`,
+        userId: req.userId,
+        detalhes: `Venda finalizada - R$${venda.total.toFixed(2)}`
+      });
+    }
 
     res.json(venda);
   } catch (erro) {

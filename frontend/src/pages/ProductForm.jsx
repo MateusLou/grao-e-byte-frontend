@@ -6,8 +6,6 @@ import { useToast } from '../components/Toast';
 import { validarNome, validarPreco } from '../helpers/validacao';
 import { temPermissao } from '../helpers/permissoes';
 
-const TAGS_PREDEFINIDAS = ['Vegano', 'Sem Lactose', 'Sem Gluten'];
-
 function ProductForm() {
   const { id } = useParams();
   const isEdicao = Boolean(id);
@@ -156,8 +154,8 @@ function ProductForm() {
     }
   };
 
-  // Combinar tags predefinidas + tags do banco (sem duplicatas)
-  const todasTagsOpcoes = [...new Set([...TAGS_PREDEFINIDAS, ...tagsDisponiveis])];
+  // Tags disponiveis vem do banco (dinamico)
+  const todasTagsOpcoes = tagsDisponiveis;
 
   return (
     <Layout>

@@ -19,6 +19,7 @@ function Products() {
   const [tagsDisponiveis, setTagsDisponiveis] = useState([]);
   const [ordenacao, setOrdenacao] = useState('padrao');
   const [toggleTarget, setToggleTarget] = useState(null);
+  const [tagParaDeletar, setTagParaDeletar] = useState(null);
   const [ordenacaoLocal, setOrdenacaoLocal] = useState([]);
   const [ordenacaoAlterada, setOrdenacaoAlterada] = useState(false);
   const navigate = useNavigate();
@@ -125,6 +126,28 @@ function Products() {
     setTagsSelecionadas((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
+  };
+
+  const handleDeletarTag = async () => {
+    if (!tagParaDeletar) return;
+    try {
+      const response = await fetch(`/api/products/tags/${encodeURIComponent(tagParaDeletar)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        showToast(`Tag "${tagParaDeletar}" removida com sucesso!`, 'success');
+        setTagsSelecionadas((prev) => prev.filter((t) => t !== tagParaDeletar));
+        carregarTags();
+        carregarProdutos();
+      } else {
+        showToast('Erro ao remover tag', 'error');
+      }
+    } catch {
+      showToast('Erro ao remover tag', 'error');
+    } finally {
+      setTagParaDeletar(null);
+    }
   };
 
   // Piores vendas (3 menores vendaMediaDiaria entre ativos com vendas)
@@ -407,13 +430,23 @@ function Products() {
       {tagsDisponiveis.length > 0 && (
         <div className="tags-filter">
           {tagsDisponiveis.map((tag) => (
-            <button
-              key={tag}
-              className={`tag-filter-btn ${tagsSelecionadas.includes(tag) ? 'tag-filter-btn-selected' : ''}`}
-              onClick={() => handleTagFilter(tag)}
-            >
-              {tag}
-            </button>
+            <div key={tag} className="tag-filter-wrapper">
+              <button
+                className={`tag-filter-btn ${tagsSelecionadas.includes(tag) ? 'tag-filter-btn-selected' : ''}`}
+                onClick={() => handleTagFilter(tag)}
+              >
+                {tag}
+              </button>
+              {isGerente && (
+                <button
+                  className="tag-delete-btn"
+                  title={`Remover tag "${tag}"`}
+                  onClick={(e) => { e.stopPropagation(); setTagParaDeletar(tag); }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           ))}
         </div>
       )}
@@ -543,6 +576,16 @@ function Products() {
         confirmLabel="Desativar"
         onConfirm={() => executarToggle(toggleTarget)}
         onCancel={() => setToggleTarget(null)}
+        danger
+      />
+
+      <ConfirmModal
+        isOpen={!!tagParaDeletar}
+        title="Remover Tag"
+        message={`Tem certeza que deseja remover a tag "${tagParaDeletar}"? Ela será removida de todos os produtos que a utilizam.`}
+        confirmLabel="Remover"
+        onConfirm={handleDeletarTag}
+        onCancel={() => setTagParaDeletar(null)}
         danger
       />
     </Layout>

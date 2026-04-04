@@ -35,6 +35,21 @@ router.get('/tags', auth, async (req, res) => {
   }
 });
 
+// DELETE /api/products/tags/:tagName - Remover tag de todos os produtos
+router.delete('/tags/:tagName', auth, requirePermissao('novo_produto'), async (req, res) => {
+  try {
+    const tag = decodeURIComponent(req.params.tagName);
+    const result = await Product.updateMany(
+      { tags: tag },
+      { $pull: { tags: tag } }
+    );
+    registrarLog({ acao: 'excluir', entidade: 'tag', entidadeNome: tag, userId: req.userId, detalhes: `Removida de ${result.modifiedCount} produto(s)` });
+    res.json({ mensagem: `Tag "${tag}" removida de ${result.modifiedCount} produto(s)` });
+  } catch (erro) {
+    res.status(500).json({ erro: 'Erro ao remover tag' });
+  }
+});
+
 // PUT /api/products/reorder - Reordenar produtos
 router.put('/reorder', auth, requirePermissao('novo_produto'), async (req, res) => {
   try {
